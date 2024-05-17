@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>fastfood_payment.Infra.IoC</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="FluentValidation" Version="11.9.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\fastfood-payment.Application\fastfood-payment.Application.csproj" />
+    <ProjectReference Include="..\fastfood-payment.Infra.Http\fastfood-payment.Infra.Http.csproj" />
+    <ProjectReference Include="..\fastfood-payment.Infra.MercadoPago\fastfood-payment.Infra.MercadoPago.csproj" />
+    <ProjectReference Include="..\fastfood-payment.Infra.MongoDb\fastfood-payment.Infra.MongoDb.csproj" />
+  </ItemGroup>
+
+</Project>
