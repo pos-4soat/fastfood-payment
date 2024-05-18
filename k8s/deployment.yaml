@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fastfood-products-api
+  name: fastfood-payment-api
   labels:
-    app: fastfood-products-api
+    app: fastfood-payment-api
 spec:
   template:
     metadata:
-      name: fastfood-products-api
+      name: fastfood-payment-api
       labels:
-        app: fastfood-products-api
+        app: fastfood-payment-api
     spec:
       containers:
-        - name: fastfood-products-api
-          image: 339713094046.dkr.ecr.us-east-1.amazonaws.com/ecr-fastfood_products
+        - name: fastfood-payment-api
+          image: 339713094046.dkr.ecr.us-east-1.amazonaws.com/ecr-fastfood_payment
           ports:
             - containerPort: 80
           livenessProbe:
@@ -38,12 +38,52 @@ spec:
               cpu: 0.2
               memory: 128Mi 
           env:
-          - name: ConnectionStrings__SqlServerConnection
+          - name: ConnectionStrings__MongoConnection
             valueFrom:
               secretKeyRef:
-                name: fastfood-products-secret
-                key: ConnectionStrings__SqlServerConnection
+                name: fastfood-payment-secret
+                key: ConnectionStrings__MongoConnection
+          - name: ConnectionStrings__MongoDatabase
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: ConnectionStrings__MongoDatabase
+          - name: ConnectionStrings__PaymentCollection
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: ConnectionStrings__PaymentCollection
+          - name: MercadoPago__AccessToken
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: MercadoPago__AccessToken
+          - name: MercadoPago__BaseUrl
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: MercadoPago__BaseUrl
+          - name: MercadoPago__UserId
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: MercadoPago__UserId
+          - name: MercadoPago__ExternalPosId
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: MercadoPago__ExternalPosId
+          - name: Http__Order
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: Http__Order
+          - name: Http__Production
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-payment-secret
+                key: Http__Production
   replicas: 1
   selector:
     matchLabels:
-      app: fastfood-products-api
+      app: fastfood-payment-api

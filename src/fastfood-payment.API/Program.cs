@@ -71,7 +71,8 @@ services.RegisterServices(configuration);
 WebApplication app = builder.Build();
 
 app.UseSwagger().UseSwaggerUI();
-//app.UseRouting();
+//app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthorization();
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
@@ -82,21 +83,19 @@ app.UseCors(options => options
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
-    Predicate = _ => _.Tags.Contains("ready"),
-    ResponseWriter = HealthCheckResponseWriter.Write
+Predicate = _ => _.Tags.Contains("ready"),
+ResponseWriter = HealthCheckResponseWriter.Write
 });
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
-    Predicate = _ => _.Tags.Contains("live"),
-    ResponseWriter = HealthCheckResponseWriter.Write
+Predicate = _ => _.Tags.Contains("live"),
+ResponseWriter = HealthCheckResponseWriter.Write
 });
 
 app.MapDefaultControllerRoute();
 
 app.MapControllers();
-
-app.UseHttpsRedirection();
 
 app.Run();
 

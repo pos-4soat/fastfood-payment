@@ -1,14 +1,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: hpa-fastfood-products
+  name: hpa-fastfood-payment
   labels:
-    app: fastfood-products
+    app: fastfood-payment
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: fastfood-products-api
+    name: fastfood-payment-api
   minReplicas: 1
   maxReplicas: 2
   metrics:
