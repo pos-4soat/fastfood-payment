@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  ECR_REPOSITORY: ecr-fastfood_products
+  ECR_REPOSITORY: ecr-fastfood_payment
   EKS_CLUSTER_NAME: eks-fiap_4soat
   AWS_REGION: us-east-1
 
