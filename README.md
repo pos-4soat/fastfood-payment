@@ -13,6 +13,9 @@ Esse projeto tem um workflow de subir a imagem do projeto ao ECR ao realizar o m
 
 Fluxo:
 * RUN 1 do terraform
+* Workflow de [Produção](https://github.com/pos-4soat/fastfood-production)
+* Atualizar secret com uri do loadbalancer de pedidos
+* Atualizar secret com uri do loadbalancer de produção
 * Workflow para realizar o deploy da imagem no ECR
 
 ## Execução do projeto
