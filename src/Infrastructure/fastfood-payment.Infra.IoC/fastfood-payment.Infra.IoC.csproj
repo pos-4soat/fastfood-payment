@@ -11,7 +11,7 @@
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="FluentValidation" Version="11.9.1" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="MediatR" Version="12.3.0" />
     <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
@@ -19,9 +19,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\fastfood-payment.Application\fastfood-payment.Application.csproj" />
-    <ProjectReference Include="..\fastfood-payment.Infra.Http\fastfood-payment.Infra.Http.csproj" />
+    <ProjectReference Include="..\fastfood-payment.Infra.Email\fastfood-payment.Infra.Email.csproj" />
     <ProjectReference Include="..\fastfood-payment.Infra.MercadoPago\fastfood-payment.Infra.MercadoPago.csproj" />
     <ProjectReference Include="..\fastfood-payment.Infra.MongoDb\fastfood-payment.Infra.MongoDb.csproj" />
+    <ProjectReference Include="..\fastfood-payment.Infra.RabbitMq\fastfood-payment.Infra.RabbitMq.csproj" />
   </ItemGroup>
 
 </Project>

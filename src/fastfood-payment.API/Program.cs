@@ -1,6 +1,7 @@
 using fastfood_payment.API.HealthCheck;
 using fastfood_payment.API.Middleware;
 using fastfood_payment.Application.Shared.Behavior;
+using fastfood_payment.Application.UseCases.Consumer;
 using fastfood_payment.Infra.IoC;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -68,6 +69,8 @@ services
 
 services.RegisterServices(configuration);
 
+services.AddHostedService<RabbitMQConsumerService>();
+
 WebApplication app = builder.Build();
 
 app.UseSwagger().UseSwaggerUI();
@@ -83,14 +86,14 @@ app.UseCors(options => options
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
-Predicate = _ => _.Tags.Contains("ready"),
-ResponseWriter = HealthCheckResponseWriter.Write
+    Predicate = _ => _.Tags.Contains("ready"),
+    ResponseWriter = HealthCheckResponseWriter.Write
 });
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
-Predicate = _ => _.Tags.Contains("live"),
-ResponseWriter = HealthCheckResponseWriter.Write
+    Predicate = _ => _.Tags.Contains("live"),
+    ResponseWriter = HealthCheckResponseWriter.Write
 });
 
 app.MapDefaultControllerRoute();

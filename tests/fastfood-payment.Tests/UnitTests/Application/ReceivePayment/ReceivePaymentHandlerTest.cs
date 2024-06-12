@@ -1,15 +1,9 @@
 ﻿using fastfood_payment.Application.Shared.BaseResponse;
-using fastfood_payment.Application.UseCases.CreatePayment;
 using fastfood_payment.Application.UseCases.ReceivePayment;
 using fastfood_payment.Domain.Entity;
 using fastfood_payment.Domain.Enum;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace fastfood_payment.Tests.UnitTests.Application.ReceivePayment;
 
@@ -19,14 +13,13 @@ public class ReceivePaymentHandlerTest : TestFixture
     public async Task ShouldReceivePaymentConfirmation()
     {
         ReceivePaymentRequest request = _modelFakerFactory.GenerateRequest<ReceivePaymentRequest>();
-        var entity = _modelFakerFactory.GenerateRequest<PaymentEntity>();
+        request.Action = "payment.created";
+        PaymentEntity entity = _modelFakerFactory.GenerateRequest<PaymentEntity>();
         entity.Payed = false;
 
         _repositoryMock.SetupFindAsync(entity);
-        _orderHttpClientMock.SetupGetOrderStatus(1);
-        _productionHttpClientMock.SetupRequestProduction(true);
 
-        ReceivePaymentHandler service = new(_mapper, _orderHttpClientMock.Object, _productionHttpClientMock.Object, _repositoryMock.Object);
+        ReceivePaymentHandler service = new(_mapper, _repositoryMock.Object, _consumerMock.Object, _emailMock.Object);
 
         Result<ReceivePaymentResponse> result = await service.Handle(request, default);
 
@@ -35,77 +28,102 @@ public class ReceivePaymentHandlerTest : TestFixture
         Assert.That(result.Value.Status, Is.EqualTo(PaymentStatus.PaymentConfirmed));
 
         _repositoryMock.VerifyFindAsync(Times.Once());
-        _repositoryMock.VerifyUpdateAsync(request.OrderId, Times.Once());
+        _repositoryMock.VerifyUpdateAsync(request.OrderId, request.Action.Equals("payment.created"), Times.Once());
         _repositoryMock.VerifyNoOtherCalls();
-        _orderHttpClientMock.VerifyGetOrderStatus(request.OrderId, Times.Once());
-        _orderHttpClientMock.VerifyNoOtherCalls();
-        _productionHttpClientMock.VerifyRequestProduction(Times.Once());
-        _productionHttpClientMock.VerifyNoOtherCalls();
+        _emailMock.VerifyNoOtherCalls();
+        _consumerMock.VerifyPublishProduction();
+        _consumerMock.VerifyNoOtherCalls();
     }
 
-    //[Test, Description("Should return payment created previously")]
-    //public async Task ShouldReturnPaymentCreatedPreviously()
-    //{
-    //    CreatePaymentRequest request = _modelFakerFactory.GenerateRequest<CreatePaymentRequest>();
-    //    var payment = _modelFakerFactory.GenerateRequest<PaymentEntity>();
+    [Test, Description("Should return payment not found")]
+    public async Task ShouldReturnPaymentNotFound()
+    {
+        ReceivePaymentRequest request = _modelFakerFactory.GenerateRequest<ReceivePaymentRequest>();
+        request.Action = "payment.created";
+        PaymentEntity entity = _modelFakerFactory.GenerateRequest<PaymentEntity>();
+        entity.Payed = false;
 
-    //    _repositoryMock.SetupFindAsync(payment);
+        _repositoryMock.SetupFindAsync(null);
 
-    //    CreatePaymentHandler service = new(_mapper, _orderPaymentMock.Object, _orderHttpClientMock.Object, _repositoryMock.Object);
+        ReceivePaymentHandler service = new(_mapper, _repositoryMock.Object, _consumerMock.Object, _emailMock.Object);
 
-    //    Result<CreatePaymentResponse> result = await service.Handle(request, default);
+        Result<ReceivePaymentResponse> result = await service.Handle(request, default);
 
-    //    AssertExtensions.ResultIsSuccess(result, HttpStatusCode.Created);
+        AssertExtensions.ResultIsFailure(result, "PBE004", HttpStatusCode.BadRequest);
 
-    //    Assert.That(result.Value.PaymentQrCode, Is.EqualTo(payment.PaymentQrCode));
+        _repositoryMock.VerifyFindAsync(Times.Once());
+        _repositoryMock.VerifyNoOtherCalls();
+        _emailMock.VerifyNoOtherCalls();
+        _consumerMock.VerifyNoOtherCalls();
+    }
 
-    //    _repositoryMock.VerifyFindAsync(Times.Once());
-    //    _repositoryMock.VerifyNoOtherCalls();
-    //    _orderHttpClientMock.VerifyNoOtherCalls();
-    //    _orderPaymentMock.VerifyNoOtherCalls();
-    //}
+    [Test, Description("Should return payment already received")]
+    public async Task ShouldReturnPaymentAlreadyReceived()
+    {
+        ReceivePaymentRequest request = _modelFakerFactory.GenerateRequest<ReceivePaymentRequest>();
+        request.Action = "payment.created";
+        PaymentEntity entity = _modelFakerFactory.GenerateRequest<PaymentEntity>();
+        entity.Payed = true;
 
-    //[Test, Description("Should return order not found")]
-    //public async Task ShouldReturnOrderNotFound()
-    //{
-    //    CreatePaymentRequest request = _modelFakerFactory.GenerateRequest<CreatePaymentRequest>();
+        _repositoryMock.SetupFindAsync(entity);
 
-    //    _repositoryMock.SetupFindAsync(null);
-    //    _orderHttpClientMock.SetupGetOrderAmount(null);
+        ReceivePaymentHandler service = new(_mapper, _repositoryMock.Object, _consumerMock.Object, _emailMock.Object);
 
-    //    CreatePaymentHandler service = new(_mapper, _orderPaymentMock.Object, _orderHttpClientMock.Object, _repositoryMock.Object);
+        Result<ReceivePaymentResponse> result = await service.Handle(request, default);
 
-    //    Result<CreatePaymentResponse> result = await service.Handle(request, default);
+        AssertExtensions.ResultIsFailure(result, "PBE005", HttpStatusCode.BadRequest);
 
-    //    AssertExtensions.ResultIsFailure(result, "PBE002", HttpStatusCode.BadRequest);
+        _repositoryMock.VerifyFindAsync(Times.Once());
+        _repositoryMock.VerifyNoOtherCalls();
+        _emailMock.VerifyNoOtherCalls();
+        _consumerMock.VerifyNoOtherCalls();
+    }
 
-    //    _repositoryMock.VerifyFindAsync(Times.Once());
-    //    _repositoryMock.VerifyNoOtherCalls();
-    //    _orderHttpClientMock.VerifyGetOrderAmount(Times.Once());
-    //    _orderHttpClientMock.VerifyNoOtherCalls();
-    //    _orderPaymentMock.VerifyNoOtherCalls();
-    //}
+    [Test, Description("Should return payment denied")]
+    public async Task ShouldReturnPaymentDenied()
+    {
+        ReceivePaymentRequest request = _modelFakerFactory.GenerateRequest<ReceivePaymentRequest>();
+        request.Action = "payment.denied";
+        PaymentEntity entity = _modelFakerFactory.GenerateRequest<PaymentEntity>();
+        entity.Payed = false;
 
-    //[Test, Description("Should return failed QRCode generation")]
-    //public async Task ShouldReturnFailedQRCodeGeneration()
-    //{
-    //    CreatePaymentRequest request = _modelFakerFactory.GenerateRequest<CreatePaymentRequest>();
+        _repositoryMock.SetupFindAsync(entity);
 
-    //    _repositoryMock.SetupFindAsync(null);
-    //    _orderHttpClientMock.SetupGetOrderAmount(_modelFakerFactory.GenerateRequest<PaymentEntity>());
-    //    _orderPaymentMock.SetupGerarQRCodeParaPagamentoDePedido(null);
+        ReceivePaymentHandler service = new(_mapper, _repositoryMock.Object, _consumerMock.Object, _emailMock.Object);
 
-    //    CreatePaymentHandler service = new(_mapper, _orderPaymentMock.Object, _orderHttpClientMock.Object, _repositoryMock.Object);
+        Result<ReceivePaymentResponse> result = await service.Handle(request, default);
 
-    //    Result<CreatePaymentResponse> result = await service.Handle(request, default);
+        AssertExtensions.ResultIsFailure(result, "PBE012", HttpStatusCode.BadRequest);
 
-    //    AssertExtensions.ResultIsFailure(result, "PBE003", HttpStatusCode.BadRequest);
+        _repositoryMock.VerifyFindAsync(Times.Once());
+        _repositoryMock.VerifyUpdateAsync(request.OrderId, request.Action.Equals("payment.created"), Times.Once());
+        _repositoryMock.VerifyNoOtherCalls();
+        _emailMock.VerifySendEmailAsync();
+        _consumerMock.VerifyPublishOrder();
+        _consumerMock.VerifyNoOtherCalls();
+    }
 
-    //    _repositoryMock.VerifyFindAsync(Times.Once());
-    //    _repositoryMock.VerifyNoOtherCalls();
-    //    _orderHttpClientMock.VerifyGetOrderAmount(Times.Once());
-    //    _orderHttpClientMock.VerifyNoOtherCalls();
-    //    _orderPaymentMock.VerifyGerarQRCodeParaPagamentoDePedido(Times.Once());
-    //    _orderPaymentMock.VerifyNoOtherCalls();
-    //}
+    [Test, Description("Should return failed update status")]
+    public async Task ShouldReturnFailedUpdateStatus()
+    {
+        ReceivePaymentRequest request = _modelFakerFactory.GenerateRequest<ReceivePaymentRequest>();
+        request.Action = "payment.created";
+        PaymentEntity entity = _modelFakerFactory.GenerateRequest<PaymentEntity>();
+        entity.Payed = false;
+
+        _repositoryMock.SetupFindAsync(entity);
+        _consumerMock.SetupExceptionPublishProduction();
+
+        ReceivePaymentHandler service = new(_mapper, _repositoryMock.Object, _consumerMock.Object, _emailMock.Object);
+
+        Result<ReceivePaymentResponse> result = await service.Handle(request, default);
+
+        AssertExtensions.ResultIsFailure(result, "PBE007", HttpStatusCode.BadRequest);
+
+        _repositoryMock.VerifyFindAsync(Times.Once());
+        _repositoryMock.VerifyNoOtherCalls();
+        _emailMock.VerifyNoOtherCalls();
+        _consumerMock.VerifyPublishProduction();
+        _consumerMock.VerifyNoOtherCalls();
+    }
 }

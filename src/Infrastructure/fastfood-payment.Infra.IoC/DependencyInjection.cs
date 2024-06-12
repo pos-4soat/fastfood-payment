@@ -1,11 +1,15 @@
 ﻿using fastfood_payment.Application.Shared.BaseResponse;
-using fastfood_payment.Domain.Contracts.Http;
+using fastfood_payment.Domain.Contracts.Email;
 using fastfood_payment.Domain.Contracts.Mongo;
 using fastfood_payment.Domain.Contracts.Payment;
-using fastfood_payment.Infra.Http;
+using fastfood_payment.Domain.Contracts.RabbitMq;
+using fastfood_payment.Infra.Email;
+using fastfood_payment.Infra.Email.Configuration;
 using fastfood_payment.Infra.MercadoPago;
 using fastfood_payment.Infra.MongoDb.Context;
 using fastfood_payment.Infra.MongoDb.Repository;
+using fastfood_payment.Infra.RabbitMq;
+using fastfood_payment.Infra.RabbitMq.Settings;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
@@ -22,11 +26,11 @@ public static class DependencyInjection
     public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.ConfigureBehavior();
+        services.ConfigureSettings(configuration);
         services.ConfigureServices();
         services.ConfigureAutomapper();
         services.ConfigureMediatr();
         services.ConfigureFluentValidation();
-        services.ConfigureHttpClient(configuration);
         services.ConfigureDatabase(configuration);
     }
 
@@ -54,30 +58,18 @@ public static class DependencyInjection
         service.AddFluentValidationRulesToSwagger();
     }
 
-    private static void ConfigureHttpClient(this IServiceCollection services, IConfiguration configuration)
-    {
-        IConfiguration externalConfig = configuration.GetSection("Http");
-        string baseUrlOrder = externalConfig.GetSection("Order").Value;
-
-        services.AddTransient<IOrderHttpClient>(provider =>
-        {
-            string? baseAddress = baseUrlOrder;
-            return new OrderHttpClient(baseAddress);
-        });
-
-        string baseUrlProduction = externalConfig.GetSection("Production").Value;
-
-        services.AddTransient<IProductionHttpClient>(provider =>
-        {
-            string? baseAddress = baseUrlProduction;
-            return new ProductionHttpClient(baseAddress);
-        });
-    }
-
     private static void ConfigureServices(this IServiceCollection services)
     {
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderPayment, MercadoPagoPayment>();
+        services.AddSingleton<IConsumerService, ConsumerService>();
+        services.AddTransient<IEmailClient, EmailClient>();
+    }
+
+    private static void ConfigureSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<RabbitMqSettings>(configuration.GetSection("RabbitMq"));
+        services.Configure<EmailSettings>(configuration.GetSection("Email"));
     }
 
     private static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)

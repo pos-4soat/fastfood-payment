@@ -35,12 +35,11 @@ namespace fastfood_payment.Infra.MongoDb.Repository
             await _collection.InsertOneAsync(paymentEntity, options, cancellationToken);
         }
 
-        public async Task UpdateAsync(int orderId, CancellationToken cancellationToken)
+        public async Task UpdateAsync(int orderId, bool payed, CancellationToken cancellationToken)
         {
             FilterDefinition<PaymentEntity> filter = Builders<PaymentEntity>.Filter.Eq(x => x.OrderId, orderId);
 
-            UpdateDefinition<PaymentEntity> update = Builders<PaymentEntity>.Update.Set(x => x.Payed, true);
-
+            UpdateDefinition<PaymentEntity> update = payed ? Builders<PaymentEntity>.Update.Set(x => x.Payed, true) : Builders<PaymentEntity>.Update.Set(x => x.Canceled, true);
             UpdateOptions options = new UpdateOptions() { IsUpsert = true };
 
             await _collection.UpdateOneAsync(filter, update, options, cancellationToken);

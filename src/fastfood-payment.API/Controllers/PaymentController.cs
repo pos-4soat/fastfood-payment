@@ -1,6 +1,5 @@
 ﻿using fastfood_payment.API.Controllers.Base;
 using fastfood_payment.Application.Shared.BaseResponse;
-using fastfood_payment.Application.UseCases.CreatePayment;
 using fastfood_payment.Application.UseCases.ReceivePayment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +13,6 @@ namespace fastfood_payment.API.Controllers
     [Route("v{ver:apiVersion}/[controller]")]
     public class PaymentController(IMediator _mediator) : BaseController
     {
-        [HttpPost]
-        [SwaggerOperation(Summary = "Create payment")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "OK", typeof(Response<Result<CreatePaymentResponse>>))]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest createOrderRequest, CancellationToken cancellationToken)
-        {
-            Result<CreatePaymentResponse> result = await _mediator.Send(createOrderRequest, cancellationToken);
-            return await GetResponseFromResult(result);
-        }
-
-
         /// <summary>
         /// Process payment webhook
         /// </summary>
@@ -32,7 +21,7 @@ namespace fastfood_payment.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("{orderId}")]
-        [SwaggerOperation(Summary = "Create payment")]
+        [SwaggerOperation(Summary = "Process payment webhook")]
         [SwaggerResponse((int)HttpStatusCode.OK, "OK", typeof(Response<Result<ReceivePaymentResponse>>))]
         public async Task<IActionResult> ReceiveOrderPayment([FromRoute] int orderId, [FromBody] ReceivePaymentRequest orderPayedRequestDto, CancellationToken cancellationToken)
         {
