@@ -41,6 +41,18 @@ public class ConsumerService : IConsumerService, IDisposable
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
 
+        _channel.QueueDeclare(queue: _settings.OrderQueueName,
+                              durable: true,
+                              exclusive: false,
+                              autoDelete: false,
+                              arguments: null);
+
+        _channel.QueueDeclare(queue: _settings.ProductionQueueName,
+                              durable: true,
+                              exclusive: false,
+                              autoDelete: false,
+                              arguments: null);
+
         _channel.QueueDeclare(queue: _settings.PaymentQueueName,
                               durable: true,
                               exclusive: false,
