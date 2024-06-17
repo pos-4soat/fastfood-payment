@@ -73,16 +73,46 @@ spec:
               secretKeyRef:
                 name: fastfood-payment-secret
                 key: MercadoPago__ExternalPosId
-          - name: Http__Order
+          - name: RabbitMQ__HostName
             valueFrom:
               secretKeyRef:
-                name: fastfood-payment-secret
-                key: Http__Order
-          - name: Http__Production
+                name: fastfood-orders-secret
+                key: RabbitMQ__HostName
+          - name: RabbitMQ__UserName
             valueFrom:
               secretKeyRef:
-                name: fastfood-payment-secret
-                key: Http__Production
+                name: fastfood-orders-secret
+                key: RabbitMQ__UserName
+          - name: RabbitMQ__Password
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-orders-secret
+                key: RabbitMQ__Password
+          - name: RabbitMQ__PaymentQueueName
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-orders-secret
+                key: RabbitMQ__PaymentQueueName
+          - name: RabbitMQ__ProductionQueueName
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-orders-secret
+                key: RabbitMQ__ProductionQueueName
+          - name: RabbitMQ__OrderQueueName
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-orders-secret
+                key: RabbitMQ__OrderQueueName
+          - name: Email__Username
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-orders-secret
+                key: Email__Username
+          - name: Email__Password
+            valueFrom:
+              secretKeyRef:
+                name: fastfood-orders-secret
+                key: Email__Password
   replicas: 1
   selector:
     matchLabels:
