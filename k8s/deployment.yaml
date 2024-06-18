@@ -76,42 +76,42 @@ spec:
           - name: RabbitMQ__HostName
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: RabbitMQ__HostName
           - name: RabbitMQ__UserName
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: RabbitMQ__UserName
           - name: RabbitMQ__Password
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: RabbitMQ__Password
           - name: RabbitMQ__PaymentQueueName
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: RabbitMQ__PaymentQueueName
           - name: RabbitMQ__ProductionQueueName
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: RabbitMQ__ProductionQueueName
           - name: RabbitMQ__OrderQueueName
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: RabbitMQ__OrderQueueName
           - name: Email__Username
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: Email__Username
           - name: Email__Password
             valueFrom:
               secretKeyRef:
-                name: fastfood-orders-secret
+                name: fastfood-payment-secret
                 key: Email__Password
   replicas: 1
   selector:
