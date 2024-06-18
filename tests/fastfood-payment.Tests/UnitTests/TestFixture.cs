@@ -2,9 +2,10 @@
 using AutoMapper;
 using Bogus;
 using fastfood_payment.Application.Shared.BaseResponse;
-using fastfood_payment.Domain.Contracts.Http;
+using fastfood_payment.Domain.Contracts.Email;
 using fastfood_payment.Domain.Contracts.Mongo;
 using fastfood_payment.Domain.Contracts.Payment;
+using fastfood_payment.Domain.Contracts.RabbitMq;
 using fastfood_payment.Tests.Mocks;
 using Moq;
 using Moq.AutoMock;
@@ -18,9 +19,9 @@ public abstract class TestFixture
     public Faker Faker { get; init; } = new();
 
     protected PaymentRepositoryMock _repositoryMock;
-    protected OrderHttpClientMock _orderHttpClientMock;
-    protected ProductionHttpClientMock _productionHttpClientMock;
     protected OrderPaymentMock _orderPaymentMock;
+    protected ConsumerServiceMock _consumerMock;
+    protected EmailClientMock _emailMock;
     protected IMapper _mapper;
 
     protected ModelFakerFactory _modelFakerFactory;
@@ -62,17 +63,17 @@ public abstract class TestFixture
     private void AddCustomMocksToContainer()
     {
         _autoMocker.Use(new PaymentRepositoryMock(this).ConvertToBaseType());
-        _autoMocker.Use(new OrderHttpClientMock(this).ConvertToBaseType());
-        _autoMocker.Use(new ProductionHttpClientMock(this).ConvertToBaseType());
         _autoMocker.Use(new OrderPaymentMock(this).ConvertToBaseType());
+        _autoMocker.Use(new ConsumerServiceMock(this).ConvertToBaseType());
+        _autoMocker.Use(new EmailClientMock(this).ConvertToBaseType());
     }
 
     private void InstantiateCustomMocks()
     {
         _repositoryMock = GetCustomMock<IPaymentRepository, PaymentRepositoryMock>();
-        _orderHttpClientMock = GetCustomMock<IOrderHttpClient, OrderHttpClientMock>();
-        _productionHttpClientMock = GetCustomMock<IProductionHttpClient, ProductionHttpClientMock>();
         _orderPaymentMock = GetCustomMock<IOrderPayment, OrderPaymentMock>();
+        _consumerMock = GetCustomMock<IConsumerService, ConsumerServiceMock>();
+        _emailMock = GetCustomMock<IEmailClient, EmailClientMock>();
     }
 
     private void CreateMapper()

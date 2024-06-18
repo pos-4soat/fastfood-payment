@@ -10,9 +10,7 @@ public class ReceivePaymentValidator : AbstractValidator<ReceivePaymentRequest>
         RuleFor(dto => dto.Action)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("PBE008")
-            .Must(dto => dto.Equals("payment.created"))
-            .WithMessage("PBE009");
+            .WithMessage("PBE008");
 
         RuleFor(dto => dto.Data)
             .Cascade(CascadeMode.Stop)

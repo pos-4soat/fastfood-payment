@@ -10,6 +10,7 @@ namespace fastfood_payment.Domain.Entity
         public decimal Amount { get; set; }
         public string PaymentQrCode { get; set; }
         public bool Payed { get; set; } = false;
+        public bool Canceled { get; set; } = false;
         public IEnumerable<Items> Items { get; set; }
     }
 

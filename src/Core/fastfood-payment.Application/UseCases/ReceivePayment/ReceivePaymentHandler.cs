@@ -1,23 +1,23 @@
 ﻿using AutoMapper;
 using fastfood_payment.Application.Shared.BaseResponse;
-using fastfood_payment.Domain.Contracts.Http;
+using fastfood_payment.Domain.Contracts.Email;
 using fastfood_payment.Domain.Contracts.Mongo;
+using fastfood_payment.Domain.Contracts.RabbitMq;
 using fastfood_payment.Domain.Entity;
-using fastfood_payment.Domain.Enum;
 using MediatR;
 
 namespace fastfood_payment.Application.UseCases.ReceivePayment;
 
 public class ReceivePaymentHandler(
         IMapper mapper,
-        IOrderHttpClient httpClientOrder,
-        IProductionHttpClient httpClientProduction,
-        IPaymentRepository repository) : IRequestHandler<ReceivePaymentRequest, Result<ReceivePaymentResponse>>
+        IPaymentRepository repository,
+        IConsumerService consumerService,
+        IEmailClient emailClient) : IRequestHandler<ReceivePaymentRequest, Result<ReceivePaymentResponse>>
 {
     private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    private readonly IOrderHttpClient _httpClientOrder = httpClientOrder ?? throw new ArgumentNullException(nameof(httpClientOrder));
-    private readonly IProductionHttpClient _httpClientProduction = httpClientProduction ?? throw new ArgumentNullException(nameof(httpClientProduction));
     private readonly IPaymentRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+    private readonly IConsumerService _consumerService = consumerService ?? throw new ArgumentNullException(nameof(consumerService));
+    private readonly IEmailClient _emailClient = emailClient ?? throw new ArgumentNullException(nameof(emailClient));
 
     public async Task<Result<ReceivePaymentResponse>> Handle(ReceivePaymentRequest request, CancellationToken cancellationToken)
     {
@@ -31,18 +31,31 @@ public class ReceivePaymentHandler(
         if (existingPayment.Payed)
             return Result<ReceivePaymentResponse>.Failure("PBE005");
 
-        int orderStatus = await _httpClientOrder.GetOrderStatus(paymentEntity.OrderId, cancellationToken);
+        bool success = request.Action.Equals("payment.created");
+        if (!success)
+        {
+            _consumerService.PublishOrder(paymentEntity.OrderId);
 
-        if (!orderStatus.Equals((int)PaymentStatus.AwaitingPayment))
-            return Result<ReceivePaymentResponse>.Failure("PBE006");
+            await _emailClient.SendEmailAsync("Falha no pagamento",
+                                           "Seu pedido não pode ser processado devido a uma falha no pagamento.",
+                                           "marcellocorassin@hotmail.com");
+        }
+        else
+        {
+            try
+            {
+                _consumerService.PublishProduction(existingPayment);
+            }
+            catch
+            {
+                return Result<ReceivePaymentResponse>.Failure("PBE007");
+            }
+        }
 
-        bool updated = await _httpClientProduction.RequestProduction(existingPayment, cancellationToken);
+        await _repository.UpdateAsync(paymentEntity.OrderId, success, cancellationToken);
 
-        if (!updated)
-            return Result<ReceivePaymentResponse>.Failure("PBE007");
-
-        await _repository.UpdateAsync(paymentEntity.OrderId, cancellationToken);
-
-        return Result<ReceivePaymentResponse>.Success(new(paymentEntity.OrderId));
+        return !success ?
+            Result<ReceivePaymentResponse>.Failure("PBE012") :
+            Result<ReceivePaymentResponse>.Success(new(paymentEntity.OrderId));
     }
 }

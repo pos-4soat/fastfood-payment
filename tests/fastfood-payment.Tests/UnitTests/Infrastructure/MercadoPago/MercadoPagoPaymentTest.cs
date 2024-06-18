@@ -1,17 +1,5 @@
-﻿using Amazon.Runtime;
-using AutoFixture;
-using fastfood_payment.Domain.Entity;
+﻿using fastfood_payment.Domain.Entity;
 using fastfood_payment.Infra.MercadoPago;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using fastfood_payment.Application.UseCases.ReceivePayment;
-using RichardSzalay.MockHttp;
 using Microsoft.Extensions.Configuration;
 
 namespace fastfood_payment.Tests.UnitTests.Infrastructure.MercadoPago;
@@ -23,7 +11,7 @@ public class MercadoPagoPaymentTest : TestFixture
     {
         PaymentEntity request = _modelFakerFactory.GenerateRequest<PaymentEntity>();
 
-        var config = new ConfigurationBuilder()
+        IConfigurationRoot config = new ConfigurationBuilder()
             .AddInMemoryCollection(
             [
                 new KeyValuePair<string, string>("MercadoPago:AccessToken", "access_token"),
@@ -35,8 +23,8 @@ public class MercadoPagoPaymentTest : TestFixture
 
         MercadoPagoPayment service = new(config);
 
-        var response = await service.GerarQRCodeParaPagamentoDePedido(request);
+        string response = await service.GerarQRCodeParaPagamentoDePedido(request);
 
-        Assert.Null(response);
+        Assert.That(response, Is.Null);
     }
 }

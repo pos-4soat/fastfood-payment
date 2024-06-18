@@ -1,6 +1,6 @@
 ﻿using fastfood_payment.API.Controllers;
 using fastfood_payment.Application.Shared.BaseResponse;
-using fastfood_payment.Application.UseCases.CreatePayment;
+using fastfood_payment.Application.UseCases.ReceivePayment;
 using fastfood_payment.Domain.Enum;
 using fastfood_payment.Tests.UnitTests;
 using MediatR;
@@ -15,42 +15,42 @@ namespace fastfood_payment.Tests.BDD;
 public class CreatePaymentTest : TestFixture
 {
     private Mock<IMediator> _mediatorMock;
-    private CreatePaymentRequest _request;
+    private ReceivePaymentRequest _request;
     private IActionResult _result;
 
     [Test, Description("")]
-    public async Task CreateANewPayment()
+    public async Task ReceivePaymentApproved()
     {
-        GivenIHaveAValidCreatePaymentRequest();
+        GivenIHaveAValidReceivePaymentRequest();
         GivenTheRepositoryReturnsASuccessfulResult();
         await WhenIRequestAPaymentCreation();
         ThenTheResultShouldBeACreatedResult();
     }
 
-    [Given(@"I have a valid create payment request")]
-    public void GivenIHaveAValidCreatePaymentRequest()
+    [Given(@"I have a valid receive payment request")]
+    private void GivenIHaveAValidReceivePaymentRequest()
     {
-        _request = new CreatePaymentRequest(1);
+        _request = _modelFakerFactory.GenerateRequest<ReceivePaymentRequest>();
     }
 
     [Given(@"the repository returns a successful result")]
-    public void GivenTheRepositoryReturnsASuccessfulResult()
+    private void GivenTheRepositoryReturnsASuccessfulResult()
     {
         _mediatorMock = new Mock<IMediator>();
-        _mediatorMock.Setup(x => x.Send(It.IsAny<CreatePaymentRequest>(), default))
-            .ReturnsAsync(Result<CreatePaymentResponse>.Success(new CreatePaymentResponse("paymentQRCodeString"), StatusResponse.CREATED));
+        _mediatorMock.Setup(x => x.Send(It.IsAny<ReceivePaymentRequest>(), default))
+            .ReturnsAsync(Result<ReceivePaymentResponse>.Success(new ReceivePaymentResponse(1)));
     }
 
     [When(@"I request a payment creation")]
-    public async Task WhenIRequestAPaymentCreation()
+    private async Task WhenIRequestAPaymentCreation()
     {
-        PaymentController controller = new PaymentController(_mediatorMock.Object);
+        PaymentController controller = new(_mediatorMock.Object);
 
-        _result = await controller.CreatePayment(_request, default);
+        _result = await controller.ReceiveOrderPayment(1, _request, default);
     }
 
     [Then(@"the result should be a CreatedResult")]
-    public void ThenTheResultShouldBeACreatedResult()
+    private void ThenTheResultShouldBeACreatedResult()
     {
         ObjectResult? objectResult = _result as ObjectResult;
         Assert.That(objectResult, Is.Not.Null);
@@ -58,9 +58,10 @@ public class CreatePaymentTest : TestFixture
 
         Response<object>? response = objectResult.Value as Response<object>;
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Status, Is.EqualTo(nameof(StatusResponse.CREATED)));
+        Assert.That(response.Status, Is.EqualTo(nameof(StatusResponse.SUCCESS)));
 
-        CreatePaymentResponse? body = response.Body as CreatePaymentResponse;
-        Assert.That(body.PaymentQrCode, Is.Not.Null);
+        ReceivePaymentResponse? body = response.Body as ReceivePaymentResponse;
+        Assert.That(body.Id, Is.EqualTo(1));
+        Assert.That(body.Status, Is.EqualTo(PaymentStatus.PaymentConfirmed));
     }
 }

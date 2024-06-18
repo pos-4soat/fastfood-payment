@@ -17,6 +17,7 @@ public static class ErrorMessages
         { "PBE009", "Action inválido para recebimento." },
         { "PBE010", "Data não pode ser nulo." },
         { "PBE011", "Id de data precisa estar preenchido." },
+        { "PBE012", "Pagamento recusado." },
         { "PIE999", "Internal server error" }
     };
 }

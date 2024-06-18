@@ -22,7 +22,7 @@ public class PaymentRepositoryMock : BaseCustomMock<IPaymentRepository>
             .Returns(Task.CompletedTask);
 
     public void SetupUpdateAsync()
-        => Setup(x => x.UpdateAsync(It.IsAny<int>(), default))
+        => Setup(x => x.UpdateAsync(It.IsAny<int>(), It.IsAny<bool>(), default))
             .Returns(Task.CompletedTask);
 
     public void VerifyFindAsync(Times? times = null)
@@ -31,6 +31,6 @@ public class PaymentRepositoryMock : BaseCustomMock<IPaymentRepository>
     public void VerifyInsertAsync(Times? times = null)
         => Verify(x => x.InsertAsync(It.IsAny<PaymentEntity>(), default), times ?? Times.Once());
 
-    public void VerifyUpdateAsync(int orderId,Times? times = null)
-        => Verify(x => x.UpdateAsync(orderId, default), times ?? Times.Once());
+    public void VerifyUpdateAsync(int orderId, bool payed, Times? times = null)
+        => Verify(x => x.UpdateAsync(orderId, payed, default), times ?? Times.Once());
 }
