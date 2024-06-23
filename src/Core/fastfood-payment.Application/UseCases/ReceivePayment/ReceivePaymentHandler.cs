@@ -38,13 +38,17 @@ public class ReceivePaymentHandler(
 
             await _emailClient.SendEmailAsync("Falha no pagamento",
                                            "Seu pedido não pode ser processado devido a uma falha no pagamento.",
-                                           "marcellocorassin@hotmail.com");
+                                           existingPayment.Email);
         }
         else
         {
             try
             {
                 _consumerService.PublishProduction(existingPayment);
+
+                await _emailClient.SendEmailAsync("Pedido em produção",
+                                               "O pagamento do seu pedido foi aprovado! Seu pedido está sendo preparado.",
+                                               existingPayment.Email);
             }
             catch
             {

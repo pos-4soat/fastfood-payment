@@ -30,6 +30,7 @@ public class ReceivePaymentHandlerTest : TestFixture
         _repositoryMock.VerifyFindAsync(Times.Once());
         _repositoryMock.VerifyUpdateAsync(request.OrderId, request.Action.Equals("payment.created"), Times.Once());
         _repositoryMock.VerifyNoOtherCalls();
+        _emailMock.VerifySendEmailAsync();
         _emailMock.VerifyNoOtherCalls();
         _consumerMock.VerifyPublishProduction();
         _consumerMock.VerifyNoOtherCalls();

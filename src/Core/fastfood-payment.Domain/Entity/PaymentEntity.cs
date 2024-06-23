@@ -7,6 +7,8 @@ namespace fastfood_payment.Domain.Entity
         [BsonElement("paymentId")]
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public int OrderId { get; set; }
+        public string UserId { get; set; }
+        public string Email { get; set; }
         public decimal Amount { get; set; }
         public string PaymentQrCode { get; set; }
         public bool Payed { get; set; } = false;

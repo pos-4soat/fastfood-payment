@@ -10,6 +10,8 @@ internal class CreatePaymentMapper : Profile
         CreateMap<CreatePaymentRequest, PaymentEntity>()
            .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
            .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+           .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+           .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
 
         CreateMap<Items, Domain.Entity.Items>();

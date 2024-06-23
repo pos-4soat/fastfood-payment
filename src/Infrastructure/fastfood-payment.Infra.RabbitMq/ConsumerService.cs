@@ -36,12 +36,12 @@ public class ConsumerService : IConsumerService, IDisposable
             HostName = _settings.HostName,
             UserName = _settings.UserName,
             Password = _settings.Password,
-            Port = 5671,
-            Ssl = new SslOption
-            {
-                Enabled = true,
-                ServerName = _settings.HostName
-            }
+            //Port = 5671,
+            //Ssl = new SslOption
+            //{
+            //    Enabled = true,
+            //    ServerName = _settings.HostName
+            //}
         };
 
         _connection = factory.CreateConnection();
