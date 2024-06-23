@@ -7,6 +7,8 @@ namespace fastfood_payment.Infra.RabbitMq.Message
     {
         public int OrderId { get; set; }
         public decimal Amount { get; set; }
+        public string UserId { get; set; }
+        public string Email { get; set; }
         public IEnumerable<Items> Items { get; set; }
     }
 

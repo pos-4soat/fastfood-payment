@@ -84,6 +84,8 @@ app.UseCors(options => options
     .AllowAnyMethod()
     .AllowAnyHeader());
 
+app.UseAuthentication();
+
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = _ => _.Tags.Contains("ready"),
