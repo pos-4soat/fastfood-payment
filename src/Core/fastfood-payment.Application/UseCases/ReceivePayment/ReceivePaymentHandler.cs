@@ -36,7 +36,8 @@ public class ReceivePaymentHandler(
         {
             _consumerService.PublishOrder(paymentEntity.OrderId);
 
-            await _emailClient.SendEmailAsync("Falha no pagamento",
+            if (!string.IsNullOrEmpty(existingPayment.Email))
+                await _emailClient.SendEmailAsync("Falha no pagamento",
                                            "Seu pedido não pode ser processado devido a uma falha no pagamento.",
                                            existingPayment.Email);
         }
@@ -46,9 +47,10 @@ public class ReceivePaymentHandler(
             {
                 _consumerService.PublishProduction(existingPayment);
 
-                await _emailClient.SendEmailAsync("Pedido em produção",
-                                               "O pagamento do seu pedido foi aprovado! Seu pedido está sendo preparado.",
-                                               existingPayment.Email);
+                if (!string.IsNullOrEmpty(existingPayment.Email))
+                    await _emailClient.SendEmailAsync("Pedido em produção",
+                                                   "O pagamento do seu pedido foi aprovado! Seu pedido está sendo preparado.",
+                                                   existingPayment.Email);
             }
             catch
             {
