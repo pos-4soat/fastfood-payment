@@ -13,9 +13,7 @@ Esse projeto tem um workflow de subir a imagem do projeto ao ECR ao realizar o m
 
 Fluxo:
 * RUN 1 do terraform
-* Workflow de [Produção](https://github.com/pos-4soat/fastfood-production)
-* Atualizar secret com uri do loadbalancer de pedidos
-* Atualizar secret com uri do loadbalancer de produção
+* Atualizar secret com host de rabbitmq
 * Workflow para realizar o deploy da imagem no ECR
 
 ## Execução do projeto
@@ -30,7 +28,7 @@ Todas as variáveis de ambiente do projeto visam fazer integração com algum se
 ## Arquitetura do projeto
 A seguinte arquitetura foi utilizada para o projeto:
 
-![Texto Alternativo](./images/ArqMS.png)
+![Texto Alternativo](./images/ArqMS.drawio.png)
 
 Como decidimos utilizar a AWS como plataforma nuvem, utilizamos o ECR para armazenar e gerenciar a imagem do contêiner da aplicação, EKS para implantar e gerenciar a aplicação em um cluster Kubernetes, HPA para escalar horizontalmente a aplicação . 
 Para gerenciar melhor os dados dos pagamentos de pedidos, optamos por utilizar o MongoDb. Por ser um banco de dados NoSQL, pensamos em utilizá-lo para armazenar os dados dos pagamentos retornados pela API do MercadoPago. Nessa solução, foi utilizada apenas a collection de Pagamentos.
