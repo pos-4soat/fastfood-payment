@@ -68,3 +68,7 @@ POST /payment/{orderId} -> Responsável por receber retorno de um pagamento via 
 Fluxo de cobertura de código está presente no workflow, utilizando coverlet para gerar relatório:
 
 ![CoberturaCodigo](./images/CoberturaCodigo.png)
+
+### Saga pattern
+A escolha da coreografia de saga pattern para a arquitetura de microsserviços do sistema de fast food totem é justificada pelo seu desacoplamento, simplicidade e independência dos serviços, permitindo que cada microsserviço ouça e reaja a eventos de forma automático e individualizado. Isso facilita a escalabilidade e a adição de novos serviços sem depender de um orquestrador central. A coreografia também melhora a resiliência, pois falhas em um serviço não impactam os outros, e proporciona maior flexibilidade para adaptar fluxos de trabalho.
+Em sumo a coreografia de saga pattern oferece uma arquitetura flexível, escalável e resiliente, permitindo a evolução contínua dos serviços, facilitando a adição de novos componentes e garantindo a tolerância a falhas individuais sem comprometer o funcionamento geral do sistema.
