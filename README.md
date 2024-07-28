@@ -38,14 +38,7 @@ Esse projeto possui uma conexão com o projeto de pedidos e produção, para atu
 
 ## Endpoints
 
-Esse projeto possui 2 endpoints:
-
-POST /payment -> Responsável por gerar um QRCode de pagamento via MercadoPago para o pedido com o seguinte json:
-```
-{
-  "orderId": "1"
-}
-```
+Esse projeto possui 1 endpoint:
 
 POST /payment/{orderId} -> Responsável por receber retorno de um pagamento via MercadoPago com o seguinte json.
 ```
